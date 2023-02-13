@@ -6,15 +6,25 @@
 //
 
 import UIKit
+import SwiftKeychainWrapper
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
+    //let keyChain = KeychainWrapper.standard.string(forKey: "pass")
 
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
-        // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
+        
+        // UserDefaults.standard.removeObject(forKey: "password")
+        
+ //        if UserDefaults.standard.bool(forKey: "password"){
+ //            print("Пароль уже был сохранен")
+ //        } else {
+ //            UserDefaults.standard.set(true, forKey: "password")
+ //
+ //        }
+      
         
         guard let _ = (scene as? UIWindowScene) else { return }
     }
