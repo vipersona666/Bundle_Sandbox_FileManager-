@@ -9,8 +9,7 @@ import UIKit
 import SwiftKeychainWrapper
 
 class LoginViewController: UIViewController {
-    
-    var keyChain = KeychainWrapper.standard.string(forKey: "pass")
+
     var passwordCoun = 0
     var signUp: Bool = true{
         willSet{
@@ -32,7 +31,7 @@ class LoginViewController: UIViewController {
             } else {
                 passwordText.text = ""
                 passwordButton.setTitle("Ввести пароль", for: .normal)
-                let alarm = UIAlertController(title: "Пароли не совпадают, введите все заново", message: "", preferredStyle: .alert)
+                let alarm = UIAlertController(title: "Пароли не совпадают, введите заново", message: "", preferredStyle: .alert)
                 let alarmAction = UIAlertAction(title: "Закрыть", style: .default)
                 alarm.addAction(alarmAction)
                 self.present(alarm, animated: true)
@@ -48,65 +47,87 @@ class LoginViewController: UIViewController {
     
     
     func checkLogin(){
-        if UserDefaults.standard.bool(forKey: "password"){
+        if (KeychainWrapper.standard.string(forKey: "pass") != nil){
             signUp = !signUp
         }else {
             signUp = true
-            UserDefaults.standard.set(true, forKey: "password")
         }
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        // Удаление пароля из кейчейн, для проверки входа
+        //KeychainWrapper.standard.remove(forKey: "pass")
         checkLogin()
-        print("keyChain:",keyChain)
     }
     
     @IBAction func passwordAction(_ sender: UIButton) {
-        //view.endEditing(true)
-        if passwordText.text!.count >= 4{
-            passwordCoun += 1
-            if passwordCoun == 2{
-                if passwordText.text == KeychainWrapper.standard.string(forKey: "key") {
-                    print("Пароль записан в keychain")
-                    KeychainWrapper.standard.set(passwordText.text!, forKey: "pass")
-                    passwordCoun = 0
-                    signUp = false
-//                    let vc = ImageViewController()
-//                    performSegue(withIdentifier: "goToTabbar", sender: nil)
-//                    vc.modalPresentationStyle = .currentContext
-//                    navigationController?.pushViewController(vc, animated: true)
-//                    let storyboard = UIStoryboard(name: "Main", bundle: nil)
-//                    let vc = storyboard.instantiateViewController(withIdentifier: "tabBarController")
-//                    self.navigationController?.pushViewController(vc, animated: true)
-                } else {
-                    repeatPass = false
-                    passwordCoun = 0
-                    print("Пароли не совпадают")
+       //если пароль еще не записан в кейчейн
+        if KeychainWrapper.standard.string(forKey: "pass") == nil {
+            if passwordText.text!.count >= 4{
+                passwordCoun += 1
+                if passwordCoun == 2{
+                    if passwordText.text == KeychainWrapper.standard.string(forKey: "key") {
+                        print("Пароль записан в keychain")
+                        KeychainWrapper.standard.set(passwordText.text!, forKey: "pass")
+                        passwordCoun = 0
+                        signUp = false
+                        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                        let vc = storyboard.instantiateViewController(withIdentifier: "tabBarController")
+                        vc.modalPresentationStyle = .fullScreen
+                        self.present(vc, animated: true, completion: nil)
+                    } else {
+                        repeatPass = false
+                        passwordCoun = 0
+                        print("Пароли не совпадают")
+                    }
+                }else {
+                    KeychainWrapper.standard.set(passwordText.text!, forKey: "key")
+                    passwordText.text = ""
+                    repeatPass = true
+                    print("Повторите пароль")
                 }
-                
-            }else {
-                KeychainWrapper.standard.set(passwordText.text!, forKey: "key")
+            } else if passwordText.text!.count == 0{
+                let alarm = UIAlertController(title: "Пароль не должен быть пустым", message: "", preferredStyle: .alert)
+                let alarmAction = UIAlertAction(title: "Закрыть", style: .default)
+                alarm.addAction(alarmAction)
+                self.present(alarm, animated: true)
+            } else {
+                let alarm = UIAlertController(title: "Пароль должен быть не менее 4х символов", message: "", preferredStyle: .alert)
+                let alarmAction = UIAlertAction(title: "Закрыть", style: .default)
+                alarm.addAction(alarmAction)
+                self.present(alarm, animated: true)
                 passwordText.text = ""
-                repeatPass = true
-                print("Повторите пароль")
             }
             
-        } else if passwordText.text!.count == 0{
-            let alarm = UIAlertController(title: "Пароль не должен быть пустым", message: "", preferredStyle: .alert)
-            let alarmAction = UIAlertAction(title: "Закрыть", style: .default)
-            alarm.addAction(alarmAction)
-            self.present(alarm, animated: true)
+        // пароль уже был записан в кейчейн
         } else {
-            let alarm = UIAlertController(title: "Пароль должен быть не менее 4х символов", message: "", preferredStyle: .alert)
-            let alarmAction = UIAlertAction(title: "Закрыть", style: .default)
-            alarm.addAction(alarmAction)
-            self.present(alarm, animated: true)
-            passwordText.text = ""
+            if passwordText.text!.count >= 4{
+                    if passwordText.text == KeychainWrapper.standard.string(forKey: "pass") {
+                        print("Пароль введен верно")
+                        signUp = false
+                        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                        let vc = storyboard.instantiateViewController(withIdentifier: "tabBarController")
+                        vc.modalPresentationStyle = .fullScreen
+                        self.present(vc, animated: true, completion: nil)
+                    } else {
+                        repeatPass = false
+                        print("Пароль введен неверно")
+                    }
+            } else if passwordText.text!.count == 0{
+                let alarm = UIAlertController(title: "Пароль не должен быть пустым", message: "", preferredStyle: .alert)
+                let alarmAction = UIAlertAction(title: "Закрыть", style: .default)
+                alarm.addAction(alarmAction)
+                self.present(alarm, animated: true)
+            } else {
+                let alarm = UIAlertController(title: "Пароль должен быть не менее 4х символов", message: "", preferredStyle: .alert)
+                let alarmAction = UIAlertAction(title: "Закрыть", style: .default)
+                alarm.addAction(alarmAction)
+                self.present(alarm, animated: true)
+                passwordText.text = ""
+            }
         }
-        
-        
+     
     }
   
 }

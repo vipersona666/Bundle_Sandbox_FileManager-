@@ -8,22 +8,38 @@
 import UIKit
 
 class SettingsViewController: UIViewController {
-
+    
+    var sort = true
+    
+    var imageVCDelegate: ImageViewController?
+    
+    @IBOutlet weak var sortButton: UIButton!
+    
+    @IBOutlet weak var resetButton: UIButton!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+    
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    @IBAction func sortButtonAction(_ sender: Any) {
+        if sort {
+            //print("notSort")
+                   UserDefaults.standard.set(false, forKey: "sortContent")
+            sort = false
+        } else {
+            //print("sort")
+                   UserDefaults.standard.set(true, forKey: "sortContent")
+            sort = true
+        }
+    
+        imageVCDelegate?.tableView.reloadData()
     }
-    */
-
+    @IBAction func resetPasswordAction(_ sender: Any) {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let vc = storyboard.instantiateViewController(withIdentifier: "goToChangePass")
+        vc.modalPresentationStyle = .automatic
+        self.present(vc, animated: true, completion: nil)
+    }
+  
 }

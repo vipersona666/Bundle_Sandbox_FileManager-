@@ -16,16 +16,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         
-        // UserDefaults.standard.removeObject(forKey: "password")
         
- //        if UserDefaults.standard.bool(forKey: "password"){
- //            print("Пароль уже был сохранен")
- //        } else {
- //            UserDefaults.standard.set(true, forKey: "password")
- //
- //        }
-      
-        
+        UserDefaults.standard.set(true, forKey: "sortContent")
         guard let _ = (scene as? UIWindowScene) else { return }
     }
 
