@@ -9,26 +9,36 @@ import UIKit
 
 class ImageViewController: UITableViewController{
     
+    var imageVCDelegate: SettingsViewController?
+    
     var path = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
     var file = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
     var content: [String] {
         do{
+            let content = try FileManager.default.contentsOfDirectory(atPath: path)
             
-            return try FileManager.default.contentsOfDirectory(atPath: path)
+            return content
         } catch {
             print(error.localizedDescription)
             return []
         }
+    }
+  
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        print("Content", content)
         
     }
     
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        //print(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])
-        print("Content", content)
-       
-    }
+    private func sortContent() -> [String] {
+           if UserDefaults.standard.bool(forKey: "sortContent") {
+               let sortedContent = content.sorted(by: {$0 < $1})
+               return sortedContent
+           } else {
+               let nonSortedContent = content
+               return nonSortedContent
+           }
+       }
     
     //@IBAction func pushFileAction(_ sender: Any) {
     //}
@@ -46,16 +56,19 @@ class ImageViewController: UITableViewController{
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
+      
+        //count = content.count
         return content.count
     }
 
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-        cell.textLabel?.text = content[indexPath.row]
         
-        let fullPath = path + "/" + content[indexPath.row]
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+        let sortContent = sortContent()
+        cell.textLabel?.text = sortContent[indexPath.row]
+        
+        let fullPath = path + "/" + sortContent[indexPath.row]
         
         var isDirectory: ObjCBool = false
         
@@ -74,9 +87,10 @@ class ImageViewController: UITableViewController{
     }
   
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        let sortContent = sortContent()
         if editingStyle == .delete {
             tableView.beginUpdates()
-            let pathImage = path + "/" + content[indexPath.row]
+            let pathImage = path + "/" + sortContent[indexPath.row]
             try? FileManager.default.removeItem(atPath: pathImage)
             tableView.deleteRows(at: [indexPath], with: .automatic)
             tableView.endUpdates()
@@ -88,9 +102,24 @@ class ImageViewController: UITableViewController{
 }
 extension ImageViewController: UIImagePickerControllerDelegate & UINavigationControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        if let pickedImage = info[.originalImage] as? UIImage, let imageName = (info[.imageURL] as? URL)?.lastPathComponent, let imageData = pickedImage.jpegData(compressionQuality: 1){
+        if let pickedImage = info[.originalImage] as? UIImage, let imageName = (info[.imageURL] as? URL)?.lastPathComponent , let imageData = pickedImage.jpegData(compressionQuality: 1){
             print("imageName", imageName)
+//            UserDefaults.standard.set((currentCount ?? 0) + 1, forKey: countKey)
+//            if UserDefaults.standard.bool(forKey: countKey){
+//                currentCount? += 1
+//                //UserDefaults.standard.set(currentCount, forKey: countKey)
+//                print("-----")
+//                //defaults.set(currentCount, forKey: )
+//            } else {
+//                currentCount = 1
+//                UserDefaults.standard.set(currentCount, forKey: countKey)
+//            }
             
+            
+            //print("countKey",defaults.integer(forKey: countKey))
+            //count += 1
+            
+            //let name = String(imageName.count + 1) + ".jpeg"
             let imagePath = URL(fileURLWithPath: path).appendingPathComponent(imageName)
             print("imagePath", imagePath)
             
@@ -99,6 +128,10 @@ extension ImageViewController: UIImagePickerControllerDelegate & UINavigationCon
             } catch {
                 print(error.localizedDescription)
             }
+            
+            
+            
+            //
             //let newPath = path + "/" + imageName
             //let atPath = Bundle.main.path(forResource: "cat6", ofType: ".jpeg")!
             //try? FileManager.default.copyItem(atPath: atPath , toPath: newPath)
