@@ -27,6 +27,7 @@ class ImageViewController: UITableViewController{
     override func viewDidLoad() {
         super.viewDidLoad()
         print("Content", content)
+        
     }
     
     private func sortContent() -> [String] {

@@ -13,13 +13,29 @@ class SettingsViewController: UIViewController {
     
     var imageVCDelegate: ImageViewController?
     
+    @IBOutlet weak var sortSwitch: UISwitch!
+    
+    
     @IBOutlet weak var sortButton: UIButton!
     
     @IBOutlet weak var resetButton: UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
     
+    }
+    
+    
+    @IBAction func switchAction(_ sender: Any) {
+        if sortSwitch.isOn{
+            UserDefaults.standard.set(true, forKey: "sortContent")
+            //print("sort")
+        } else {
+            //print("notSort")
+            UserDefaults.standard.set(false, forKey: "sortContent")
+        }
+        imageVCDelegate?.tableView.reloadData()
     }
     
     @IBAction func sortButtonAction(_ sender: Any) {
